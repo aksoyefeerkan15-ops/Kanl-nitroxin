@@ -1,12 +1,6 @@
-name: Build Minecraft Mod
+name: Build Kanli Nitroxin Mod
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -14,23 +8,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v5
+      - name: Find ZIP
+        run: |
+          unzip -q *.zip -d project
+          find project -maxdepth 3 -type f -name "gradlew" -print
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
 
       - name: Build
-        run: gradle build
+        run: |
+          cd "$(dirname "$(find project -name gradlew -type f | head -1)")"
+          chmod +x gradlew
+          ./gradlew build --no-daemon
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: tutorialmod
-          path: build/libs/*.jar
+          name: Kanli-Nitroxin
+          path: "project/**/build/libs/*.jar"
